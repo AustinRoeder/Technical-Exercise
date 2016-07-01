@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:api-platform-gw="http://www.mulesoft.org/schema/mule/api-platform-gw" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/api-platform-gw http://www.mulesoft.org/schema/mule/api-platform-gw/current/mule-api-platform-gw.xsd">
+    <http:listener-config name="api-httpsListenerConfig" host="0.0.0.0" port="${https.port}" doc:name="HTTP Listener Configuration" protocol="HTTPS">
+        <tls:context>
+            <tls:trust-store />
+            <tls:key-store path="keystore.jks" keyPassword="aroederMuleProj" password="aroederMuleProj" />
+        </tls:context>
+    </http:listener-config>
+    <apikit:config name="api-config" raml="api.raml" consoleEnabled="true" consolePath="console" doc:name="Router" />
+    <db:mysql-config name="MySQL_Configuration" host="52.23.199.200" port="3306" user="root" password="Mule1379" database="category" doc:name="MySQL Configuration" />
+    <api-platform-gw:api apiName="budgeting" version="v1.0" flowRef="api-main" create="true" apikitRef="api-config" doc:name="API Autodiscovery">
+        <api-platform-gw:description>Discover this api on Anypoint Platform and my organization</api-platform-gw:description>
+    </api-platform-gw:api>
+    <flow name="api-main">
+        <http:listener config-ref="api-httpsListenerConfig" path="/api/*" doc:name="HTTPS">
+            <http:response-builder statusCode="200">
+                <http:header headerName="Access-Control-Allow-Origin" value="*"/>
+                <http:header headerName="Access-Control-Allow-Methods" value="GET,POST,PUT,DELETE,OPTIONS"/>
+                <http:header headerName="Access-Control-Allow-Headers" value="DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,origin,authorization,accept,client-security-token"/>
+            </http:response-builder>
+        </http:listener>
+        <apikit:router config-ref="api-config" doc:name="APIkit Router" />
+        <exception-strategy ref="api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy" />
+    </flow>
+    <flow name="get:/user:api-config">
+        <set-payload value="#[NullPayload.getInstance()]" doc:name="Set Payload" />
+    </flow>
+    <flow name="get:/budget/categories:api-config">
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[SELECT * FROM category WHERE HouseHoldId IS NULL OR HouseHoldId = #[message.inboundProperties.'http.query.params'.HouseholdId];]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:input-payload doc:sample="sample_data/list_map.dwl" />
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload map ((payload01 , indexOfPayload01) -> {
+	HouseholdId: payload01.HouseHoldId,
+	Id: payload01.Id,
+	Name: payload01.Name
+})]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="get:/budget/category/{Id}:api-config">
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[SELECT * FROM category WHERE Id = #[flowVars.Id];]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload map ((payload01 , indexOfPayload01) -> {
+	HouseholdId: payload01.HouseHoldId,
+	Id: payload01.Id,
+	Name: payload01.Name
+})]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="post:/budget/category:api-config">
+        <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[INSERT INTO category (`Name`,`HouseHoldId`) VALUES (#[message.inboundProperties.'http.query.params'.Name],  #[message.inboundProperties.'http.query.params'.HouseholdId]);]]></db:parameterized-query>
+        </db:insert>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:input-payload doc:sample="sample_data/double.dwl" />
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	message: "response was: " ++ payload as :string
+}]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="get:/budget/items:api-config">
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[SELECT * FROM budgetitem WHERE HouseHoldId = #[message.inboundProperties.'http.query.params'.HouseholdId] AND isExpense = #[message.inboundProperties.'http.query.params'.isExpense]]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload map ((payload01 , indexOfPayload01) -> {
+	Amount: payload01.Amount as :number,
+	CategoryId: payload01.CategoryId,
+	Frequency: payload01.Frequency,
+	HouseholdId: payload01.HouseholdId,
+	Id: payload01.Id,
+	Name: payload01.Name,
+	isExpense: payload01.isExpense
+})]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="get:/budget/item/{Id}:api-config">
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[SELECT * FROM budgetitem WHERE Id = #[flowVars.Id];]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload map ((payload01 , indexOfPayload01) -> {
+	Amount: payload01.Amount as :number,
+	CategoryId: payload01.CategoryId,
+	Frequency: payload01.Frequency,
+	HouseholdId: payload01.HouseholdId,
+	Id: payload01.Id,
+	Name: payload01.Name,
+	isExpense: payload01.isExpense
+})]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="post:/budget/item:api-config">
+        <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[INSERT INTO budgetitem (`Frequency`,`CategoryId`,`HouseholdId`,`Amount`,`Name`,`isExpense`) VALUES (#[message.inboundProperties.'http.query.params'.Frequency],#[message.inboundProperties.'http.query.params'.CategoryId],#[message.inboundProperties.'http.query.params'.HouseholdId],#[message.inboundProperties.'http.query.params'.Amount],#[message.inboundProperties.'http.query.params'.Name],#[message.inboundProperties.'http.query.params'.isExpense])]]></db:parameterized-query>
+        </db:insert>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	message: payload as :string
+}]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <apikit:mapping-exception-strategy name="api-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

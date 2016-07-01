@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer"
+      },
+      "Name": {
+        "type": "string"
+      },
+      "HouseholdId": {
+        "type": "integer"
+      },
+      "Frequency": {
+        "type": "integer"
+      },
+      "CategoryId": {
+        "type": "integer"
+      },
+      "Amount": {
+        "type": "number"
+      },
+      "isExpense": {
+        "type": "boolean"
+      }
+    }
+  }
+}

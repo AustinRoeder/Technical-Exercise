@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "Claims": {
+      "type": "array",
+      "items": {}
+    },
+    "Household": {
+      "type": "object",
+      "properties": {
+        "Id": {
+          "type": "integer"
+        },
+        "Name": {
+          "type": "string"
+        }
+      }
+    },
+    "Logins": {
+      "type": "array",
+      "items": {}
+    },
+    "Roles": {
+      "type": "array",
+      "items": {}
+    },
+    "FName": {
+      "type": "null"
+    },
+    "LName": {
+      "type": "null"
+    },
+    "DisplayName": {
+      "type": "string"
+    },
+    "HouseholdId": {
+      "type": "integer"
+    },
+    "Email": {
+      "type": "string"
+    },
+    "EmailConfirmed": {
+      "type": "boolean"
+    },
+    "PasswordHash": {
+      "type": "string"
+    },
+    "SecurityStamp": {
+      "type": "string"
+    },
+    "PhoneNumber": {
+      "type": "null"
+    },
+    "PhoneNumberConfirmed": {
+      "type": "boolean"
+    },
+    "TwoFactorEnabled": {
+      "type": "boolean"
+    },
+    "LockoutEndDateUtc": {
+      "type": "null"
+    },
+    "LockoutEnabled": {
+      "type": "boolean"
+    },
+    "AccessFailedCount": {
+      "type": "integer"
+    },
+    "Id": {
+      "type": "string"
+    },
+    "UserName": {
+      "type": "string"
+    }
+  }
+}

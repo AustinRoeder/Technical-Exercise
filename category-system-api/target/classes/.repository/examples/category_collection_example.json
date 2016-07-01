@@ -1,0 +1,17 @@
+[
+{
+  "Id": "1",
+  "Name": "Salary",
+  "HouseholdId": "null"
+},
+{
+  "Id": "3",
+  "Name": "Rent",
+  "HouseholdId": "null"
+},
+{
+  "Id": "8",
+  "Name": "Fast Food",
+  "HouseholdId": "6"
+}
+]

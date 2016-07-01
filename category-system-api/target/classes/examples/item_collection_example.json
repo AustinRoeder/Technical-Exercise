@@ -1,0 +1,29 @@
+[
+{
+  "Id": "1",
+  "Name": "Austin Salary",
+  "HouseholdId": "12",
+  "Frequency": "12",
+  "CategoryId": "6",
+  "Amount": "5000.00",
+  "isExpense": "false"
+},
+{
+  "Id": "2",
+  "Name": "House",
+  "HouseholdId": "12",
+  "Frequency": "12",
+  "CategoryId": "9",
+  "Amount": "2000.00",
+  "isExpense": "true"
+},
+{
+  "Id": "3",
+  "Name": "Heavy Dining",
+  "HouseholdId": "12",
+  "Frequency": "2",
+  "CategoryId": "13",
+  "Amount": "50.00",
+  "isExpense": "true"
+}
+]

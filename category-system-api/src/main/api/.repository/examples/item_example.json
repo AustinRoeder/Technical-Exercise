@@ -1,0 +1,9 @@
+{
+  "Id": "1",
+  "Name": "Austin Salary",
+  "HouseholdId": "12",
+  "Frequency": "12",
+  "CategoryId": "6",
+  "Amount": "8000.00",
+  "isExpense": "false"
+}

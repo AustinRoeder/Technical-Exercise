@@ -1,0 +1,25 @@
+{
+  "Claims": [],
+  "Household": {
+    "Id": 12,
+    "Name": "Works"
+  },
+  "Logins": [],
+  "Roles": [],
+  "FName": null,
+  "LName": null,
+  "DisplayName": "Austin",
+  "HouseholdId": 12,
+  "Email": "ausynr@gmail.com",
+  "EmailConfirmed": false,
+  "PasswordHash": "AAgNoI8t/WwByH4xK8xoOTyqJ/992nVI8IIHdYkQwLfe4sm8XlGf5BhEotSw8OMOdg==",
+  "SecurityStamp": "fb7c3132-6af8-40ab-bc82-3bc965b3baff",
+  "PhoneNumber": null,
+  "PhoneNumberConfirmed": false,
+  "TwoFactorEnabled": false,
+  "LockoutEndDateUtc": null,
+  "LockoutEnabled": false,
+  "AccessFailedCount": 0,
+  "Id": "84385863-0af0-4c64-8fe1-ae227f7d4351",
+  "UserName": "ausynr@gmail.com"
+}
